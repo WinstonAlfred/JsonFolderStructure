@@ -1,0 +1,45 @@
+import os
+import json
+
+def scan_directory(path, exclude=set()):
+    """
+    Recursively scan a directory and return its structure as a dictionary.
+    """
+    structure = {}
+    for item in os.listdir(path):
+        if item in exclude:
+            continue
+        item_path = os.path.join(path, item)
+        if os.path.isdir(item_path):
+            subdir_structure = scan_directory(item_path, exclude)
+            if subdir_structure:  # Only add non-empty directories
+                structure[item] = subdir_structure
+        else:
+            structure[item] = "file"
+    return structure
+
+def generate_structure_file(structure, output_file):
+    """
+    Generate a JSON file representing the folder structure.
+    """
+    with open(output_file, 'w') as f:
+        json.dump(structure, f, indent=2)
+
+def main():
+    # Use the provided path
+    project_path = r" INPUT PROJECT PATH HERE "
+    
+    # Directories and files to exclude
+    exclude = {'.git', 'node_modules', '.next', 'out'}
+    
+    structure = scan_directory(project_path, exclude)
+    
+    output_file = "nextjs_project_structure.json"
+    generate_structure_file(structure, output_file)
+    
+    print(f"Folder structure has been saved to {output_file}")
+    print("\nHere's a preview of your project structure:")
+    print(json.dumps(structure, indent=2))
+
+if __name__ == "__main__":
+    main()
